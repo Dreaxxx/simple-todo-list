@@ -21,6 +21,9 @@ type TodoCardProps = {
 };
 
 export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
+  const isOverdue =
+    todo.realisedAT !== null && new Date(todo.realisedAT) <= new Date();
+
   return (
     <Card sx={{ height: "100%" }}>
       <CardContent>
@@ -33,7 +36,7 @@ export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
               variant={todo.user ? "filled" : "outlined"}
             />
             <Chip
-              color={new Date(todo.realisedAT) <= new Date() ? "error" : "success"}
+              color={isOverdue ? "error" : "success"}
               icon={<CalendarMonthRoundedIcon />}
               label={formatDate(todo.realisedAT)}
               variant="outlined"

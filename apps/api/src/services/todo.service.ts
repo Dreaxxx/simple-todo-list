@@ -1,13 +1,18 @@
+import { Todo } from "../generated/prisma/client";
 import todoRepository from "../repositories/todo.repository";
-import { asNonEmptyString, asOptionalString, asOptionalDate, asOptionalPositiveInt } from "../routes/helpers/inputs.validation";
+import {
+  asNonEmptyString,
+  asRequiredDate,
+  asOptionalPositiveInt,
+} from "../routes/helpers/inputs.validation";
 import { ValidationError, NotFoundError } from "../routes/helpers/route.errors";
-import { TodoPayload, CreateTodoInput, UpdateTodoInput } from "../types/todo.type";
+import type { TodoPayload, CreateTodoInput, UpdateTodoInput } from "../types/todo.type";
 
 function buildCreateInput(payload: TodoPayload): CreateTodoInput {
   return {
     title: asNonEmptyString(payload.title, "title"),
-    description: asOptionalString(payload.description),
-    realisedAT: asOptionalDate(payload.realisedAT),
+    description: payload.description!.trim() || null,
+    realisedAT: new Date(asRequiredDate(payload.realisedAT)),
     userId: asOptionalPositiveInt(payload.userId, "userId"),
   };
 }
@@ -20,11 +25,11 @@ function buildUpdateInput(payload: TodoPayload): UpdateTodoInput {
   }
 
   if (payload.description !== undefined) {
-    data.description = asOptionalString(payload.description);
+    data.description = payload.description!.trim() || null;
   }
 
   if (payload.realisedAT !== undefined) {
-    data.realisedAT = asOptionalDate(payload.realisedAT);
+    data.realisedAT = new Date(asRequiredDate(payload.realisedAT));
   }
 
   if (payload.userId !== undefined) {
@@ -38,11 +43,11 @@ function buildUpdateInput(payload: TodoPayload): UpdateTodoInput {
   return data;
 }
 
-async function readAll() {
+async function readAll(): Promise<Todo[]> {
   return todoRepository.readAll();
 }
 
-async function readOne(id: number) {
+async function readOne(id: number): Promise<Todo> {
   const todo = await todoRepository.readOne(id);
 
   if (!todo) {
@@ -52,11 +57,11 @@ async function readOne(id: number) {
   return todo;
 }
 
-async function create(payload: TodoPayload) {
+async function create(payload: TodoPayload): Promise<Todo> {
   return todoRepository.create(buildCreateInput(payload));
 }
 
-async function update(id: number, payload: TodoPayload) {
+async function update(id: number, payload: TodoPayload): Promise<Todo> {
   await readOne(id);
   return todoRepository.update(id, buildUpdateInput(payload));
 }

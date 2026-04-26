@@ -2,7 +2,7 @@ export type Todo = {
     id: number;
     title: string;
     description: string | null;
-    realisedAT: string;
+    realisedAT: string | null;
     createdAt: string;
     updatedAt: string;
     user: {
@@ -20,10 +20,3 @@ export type CreateTodoInput = {
 };
 
 export type UpdateTodoInput = Partial<CreateTodoInput>;
-
-export type TodoPayload = {
-    title?: unknown;
-    description?: unknown;
-    realisedAT?: unknown;
-    userId?: unknown;
-};

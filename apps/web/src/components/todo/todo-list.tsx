@@ -2,6 +2,7 @@ import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
 import { useState } from "react";
 import { Alert, Grid, LinearProgress, Stack, Typography } from "@mui/material";
 import type { Todo, UpdateTodoInput } from "../../types/todo.type";
+import { getErrorMessage } from "../../utils/errors/error-message";
 import { TodoCard } from "./todo-card";
 import { TodoEditDialog } from "./todo-edit-dialog";
 
@@ -10,7 +11,9 @@ type TodoListProps = {
   isLoading: boolean;
   isError: boolean;
   isCreateError: boolean;
+  createError: Error | null;
   isUpdatePending: boolean;
+  updateError: Error | null;
   onUpdateTodo: (id: number, payload: UpdateTodoInput) => Promise<void>;
 };
 
@@ -19,7 +22,9 @@ export function TodoList({
   isLoading,
   isError,
   isCreateError,
+  createError,
   isUpdatePending,
+  updateError,
   onUpdateTodo,
 }: TodoListProps) {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
@@ -34,7 +39,7 @@ export function TodoList({
   }
 
   if (isError) {
-    return <Alert severity="error">Erreur de chargement de la liste des todos.</Alert>;
+    return <Alert severity="error">Je n'arrive pas a charger la liste des taches.</Alert>;
   }
 
   return (
@@ -55,12 +60,20 @@ export function TodoList({
       </Stack>
 
       {isCreateError && (
-        <Alert severity="error">Erreur lors de la creation du todo.</Alert>
+        <Alert severity="error">
+          {getErrorMessage(createError, "La tache n'a pas pu etre creee.")}
+        </Alert>
+      )}
+
+      {Boolean(updateError) && (
+        <Alert severity="error">
+          {getErrorMessage(updateError, "La tache n'a pas pu etre mise a jour.")}
+        </Alert>
       )}
 
       {todos.length === 0 ? (
         <Alert severity="info">
-          Aucune tache ne correspond a la recherche actuelle.
+          Aucune tache ne correspond a ta recherche.
         </Alert>
       ) : (
         <>

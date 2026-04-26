@@ -1,4 +1,4 @@
-import type { SyntheticEvent } from "react";
+import type { ChangeEvent, SyntheticEvent } from "react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -17,6 +17,8 @@ import {
 } from "@mui/material";
 import { getAll as getAllUsers } from "../../services/user.api";
 import type { Todo, UpdateTodoInput } from "../../types/todo.type";
+import { getErrorMessage } from "../../utils/errors/error-message";
+import { buildUpdateTodoInput } from "../../utils/todos/todo.payload";
 
 type TodoEditDialogProps = {
   open: boolean;
@@ -38,7 +40,7 @@ export function TodoEditDialog({
   const [realisedAt, setRealisedAt] = useState("");
   const [userId, setUserId] = useState<string>("none");
 
-  const usersQuery = useQuery({
+  const usersQuery = useQuery<Awaited<ReturnType<typeof getAllUsers>>, Error>({
     queryKey: ["users"],
     queryFn: getAllUsers,
     enabled: open,
@@ -56,7 +58,6 @@ export function TodoEditDialog({
   }, [todo]);
 
 
-
   async function handleSubmit(event: SyntheticEvent) {
     event.preventDefault();
 
@@ -65,10 +66,7 @@ export function TodoEditDialog({
     }
 
     await onSubmit(todo.id, {
-      title: title.trim(),
-      description: description.trim() || null,
-      realisedAT: realisedAt ? new Date(realisedAt).toISOString() : undefined,
-      userId: userId === "none" ? null : Number(userId),
+      ...buildUpdateTodoInput({ title, description, realisedAt, userId }),
     });
   }
 
@@ -82,7 +80,7 @@ export function TodoEditDialog({
             required
             label="Titre"
             value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={(event) => setTitle(event.currentTarget.value)}
           />
 
           <TextField
@@ -90,14 +88,14 @@ export function TodoEditDialog({
             minRows={3}
             label="Description"
             value={description}
-            onChange={(event) => setDescription(event.target.value)}
+            onChange={(event) => setDescription(event.currentTarget.value)}
           />
 
           <TextField
             label="Date cible"
             type="date"
             value={realisedAt}
-            onChange={(event) => setRealisedAt(event.target.value)}
+            onChange={(event) => setRealisedAt(event.currentTarget.value)}
             slotProps={{
               inputLabel: {
                 shrink: true,
@@ -124,7 +122,10 @@ export function TodoEditDialog({
 
           {usersQuery.isError && (
             <Alert severity="error">
-              Impossible de charger la liste des utilisateurs.
+              {getErrorMessage(
+                usersQuery.error,
+                "Impossible de charger la liste des utilisateurs pour l'attribution.",
+              )}
             </Alert>
           )}
         </Stack>

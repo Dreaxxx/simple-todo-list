@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma";
-import { CreateTodoInput, UpdateTodoInput } from "../types/todo.type";
+import type { CreateTodoInput, UpdateTodoInput } from "../types/todo.type";
 
 const todoInclude = {
   user: {

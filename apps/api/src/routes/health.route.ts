@@ -1,13 +1,17 @@
 import { Hono } from "hono";
-import { SQL } from "bun";
+import { prisma } from "../lib/prisma";
+import { handleRouteError } from "./helpers/route.errors";
+import { jsonSuccess } from "./helpers/route.responses";
 
 const healthRouter = new Hono();
 
 healthRouter.get("/", async (c) => {
-	const postgres = new SQL("postgres://user:password@127.0.0.1:5432/monorepo");
-	const postgresResults = await postgres`SELECT * FROM pg_tables`;
-
-	return c.json({ status: "ok", tables: postgresResults });
+	try {
+		await prisma.$queryRaw`SELECT 1`;
+		return jsonSuccess(c, { status: "ok" });
+	} catch (error) {
+		return handleRouteError(c, error);
+	}
 });
 
 export default healthRouter;

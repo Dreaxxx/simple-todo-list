@@ -1,6 +1,6 @@
 import AddTaskRoundedIcon from "@mui/icons-material/AddTaskRounded";
 import { Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
-import type { SyntheticEvent } from "react";
+import type { ChangeEvent, SyntheticEvent } from "react";
 
 type TodoCreateFormProps = {
   title: string;
@@ -23,6 +23,7 @@ export function TodoCreateForm({
   onRealisedAtChange,
   onSubmit,
 }: TodoCreateFormProps) {
+
   return (
     <Card>
       <CardContent>
@@ -30,7 +31,7 @@ export function TodoCreateForm({
           <div>
             <Typography variant="h5">Ajouter une tache</Typography>
             <Typography color="text.secondary" variant="body2">
-              Ajout sdimple d'une tâche à la Todo List.
+              Ajout simple d'une tache a la todo list.
             </Typography>
           </div>
 
@@ -39,7 +40,7 @@ export function TodoCreateForm({
             label="Titre"
             placeholder="Ex: Finaliser la page Todo"
             value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
+            onChange={(event) => onTitleChange(event.currentTarget.value)}
           />
 
           <TextField
@@ -48,7 +49,7 @@ export function TodoCreateForm({
             label="Description"
             placeholder="Ajoute quelques details si besoin"
             value={description}
-            onChange={(e) => onDescriptionChange(e.target.value)}
+            onChange={(event) => onDescriptionChange(event.currentTarget.value)}
           />
 
           <TextField
@@ -60,7 +61,7 @@ export function TodoCreateForm({
             label="Date cible"
             type="date"
             value={realisedAt}
-            onChange={(e) => onRealisedAtChange(e.target.value)}
+            onChange={(event) => onRealisedAtChange(event.currentTarget.value)}
           />
 
           <Button

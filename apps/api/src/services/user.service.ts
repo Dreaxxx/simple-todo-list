@@ -1,6 +1,7 @@
+import { User } from "../generated/prisma/client";
 import userRepository from "../repositories/user.repository";
 
-async function readAll() {
+async function readAll(): Promise<User[]> {
   return userRepository.readAll();
 }
 

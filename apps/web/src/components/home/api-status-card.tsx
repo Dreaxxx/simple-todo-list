@@ -3,23 +3,20 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
 import { Alert, Card, CardContent, Chip, Stack, Typography } from "@mui/material";
+import { fetchJson } from "../../utils/api/api-client";
+import { getErrorMessage } from "../../utils/errors/error-message";
 
 type HealthResponse = {
   status: string;
 };
 
+
 async function fetchHealth(): Promise<HealthResponse> {
-  const response = await fetch("http://localhost:3000/api/health");
-
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-
-  return response.json();
+  return fetchJson<HealthResponse>("/health");
 }
 
 export function ApiStatusCard() {
-  const healthQuery = useQuery({
+  const healthQuery = useQuery<HealthResponse, Error>({
     queryKey: ["health"],
     queryFn: fetchHealth,
   });
@@ -65,7 +62,10 @@ export function ApiStatusCard() {
 
         {healthQuery.isError && (
           <Alert severity="error" sx={{ mt: 2 }}>
-            Impossible de joindre l'API pour le moment.
+            {getErrorMessage(
+              healthQuery.error,
+              "L'API ne repond pas pour le moment.",
+            )}
           </Alert>
         )}
       </CardContent>

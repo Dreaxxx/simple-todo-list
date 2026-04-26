@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { InputAdornment, TextField } from "@mui/material";
 
@@ -10,13 +11,17 @@ export function TodoSearchBar({
   search,
   onSearchChange,
 }: TodoSearchBarProps) {
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    onSearchChange((event.target as HTMLInputElement).value);
+  }
+
   return (
     <TextField
       fullWidth
       label="Rechercher"
       placeholder="Par titre ou nom d'utilisateur"
       value={search}
-      onChange={(e) => onSearchChange(e.target.value)}
+      onChange={handleChange}
       slotProps={{
         input: {
           startAdornment: (

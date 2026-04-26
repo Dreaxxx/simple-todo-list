@@ -1,17 +1,12 @@
 import type { Todo } from "./todo.type";
 import type { User } from "./user.type";
 
-export type TodoApiResponse = {
+export type ApiResponse<T> = {
     status: string;
-    data: Todo[];
+    data: T;
+    message?: string;
 };
 
-export type TodoItemApiResponse = {
-    status: string;
-    data: Todo;
-};
-
-export type UserApiResponse = {
-    status: string;
-    data: User[]
-};
+export type TodoApiResponse = ApiResponse<Todo[]>;
+export type TodoItemApiResponse = ApiResponse<Todo>;
+export type UserApiResponse = ApiResponse<User[]>;

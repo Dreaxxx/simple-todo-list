@@ -18,14 +18,14 @@ async function main() {
       todos: {
         create: [
           {
-            title: "Pet the turtle",
-            realisedAT: new Date("2026-04-12"),
-            description: "The turtle is very cute and loves pets. Don't forget to pet it every day!",
+            title: "S'occupier de la tortue",
+            realisedAT: new Date("2026-04-29"),
+            description: "La tortue est très heureuse et adore être occupée. N'oubliez pas de vous occuper de la tortue tous les jours !",
           },
           {
-            title: "Clean the table",
-            realisedAT: new Date("2026-04-02"),
-            description: "The table is dirty and needs to be cleaned. Don't forget to clean it every day!",
+            title: "Néttoyer la table",
+            realisedAT: new Date("2026-04-12"),
+            description: "Néttoyer la table est une tâche importante pour garder la maison propre. N'oubliez pas de nettoyer la table tous les jours !",
           },
         ],
       },
@@ -41,14 +41,14 @@ async function main() {
       todos: {
         create: [
           {
-            title: "Go outside with the dog",
+            title: "Promener le chien",
             realisedAT: new Date("2026-03-28"),
-            description: "The dog is very happy and loves to go outside. Don't forget to go outside with the dog every day!",
+            description: "Promener le chien est essentiel pour sa santé et son bonheur. N'oubliez pas de promener le chien tous les jours !",
           },
           {
-            title: "Gardening with grandmother",
+            title: "Aller jardiner avec grand-mère",
             realisedAT: new Date("2026-04-01"),
-            description: "Gardening is a great way to spend time with grandmother. Don't forget to go gardening with grandmother every week!",
+            description: "Aller jardiner avec grand-mère est une excellente occasion de passer du temps ensemble et d'apprendre de nouvelles choses sur les plantes. N'oubliez pas d'aller jardiner avec grand-mère tous les samedis !",
           },
         ],
       },
