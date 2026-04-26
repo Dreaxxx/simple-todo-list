@@ -1,67 +1,95 @@
-import { SyntheticEvent, useMemo, useState } from "react";
-import TodoCard from "../components/todo-card";
-import TodoForm from "../components/todo-form.add";
-import { Todo } from "../types/todo.type";
-import { useQuery } from "@tanstack/react-query";
-import { getAll } from "../services/todo.api";
-import { Divider } from "../components/divider";
+import type { SyntheticEvent } from "react";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Stack } from "@mui/material";
+import { TodoCreateForm } from "../components/todo/todo-create-form";
+import { TodoHeader } from "../components/todo/todo-header";
+import { TodoList } from "../components/todo/todo-list";
+import { TodoSearchBar } from "../components/todo/todo-search-bar";
+import { create, getAll } from "../services/todo.api";
+import { useDebounce } from "../hooks/useDebounced";
 
 export default function TodoPage() {
+    const [title, setTitle] = useState("");
+    const [realisedAt, setRealisedAt] = useState("");
+    const [description, setDescription] = useState("");
 
-    const [todo, setTodo] = useState<Todo[]>([])
-    const [todoName, setTodoName] = useState<string>("")
-    const [todoRealisedAt, setTodoRealisedAt] = useState<string>("")
-    const [search, setSearch] = useState<string>("")
+    const [search, setSearch] = useState("");
 
-    const query = useQuery({
-        queryKey: ['todos'],
+    const debouncedSearch = useDebounce(search, 300);
+
+    const queryClient = useQueryClient();
+
+    const todosQuery = useQuery({
+        queryKey: ["todos"],
         queryFn: getAll,
-    })
+    });
+
+    const createTodoMutation = useMutation({
+        mutationFn: create,
+        onSuccess: async () => {
+            setTitle("");
+            setRealisedAt("");
+            setDescription("");
+            await queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
 
     async function handleSubmit(e: SyntheticEvent) {
-        e.preventDefault()
+        e.preventDefault();
 
-        console.log("TodoName : ", todoName)
-        console.log("todoRealisedAt : ", todoRealisedAt)
+        if (title.trim() === "") {
+            return;
+        }
+
+        await createTodoMutation.mutateAsync({
+            title: title.trim(),
+            realisedAT: realisedAt ? new Date(realisedAt).toISOString() : new Date().toISOString(),
+            description: description.trim() || null,
+        });
     }
 
     const todoList = useMemo(() => {
-        return query.data!.filter((t) => t.task.includes(search));
-    }, [todo, search]);
+        const todos = todosQuery.data ?? [];
+        const normalizedSearch = debouncedSearch.trim().toLowerCase();
+
+        if (normalizedSearch === "") {
+            return todos;
+        }
+
+        return todos.filter((todo) => {
+            const matchesTitle = todo.title.toLowerCase().includes(normalizedSearch);
+            const matchesUser = todo.user?.name
+                ?.toLowerCase()
+                .includes(normalizedSearch);
+
+            return matchesTitle || matchesUser;
+        });
+    }, [debouncedSearch, todosQuery.data]);
 
     return (
-        <div>
-            <h3>Todo Page</h3>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="task" onChange={(e) => setTodoName(e.target.value)} placeholder="Task Name" />
-                <input type="date" name="realisaedAt" placeholder="Realised At ?" onChange={(e) => setTodoRealisedAt(e.target.value)} />
-                <input type="submit" />
-            </form>
-            <Divider />
-            <section>
-                {query.isLoading ?
-                    (
-                        <div>Chargement de la TodoList ...</div>
-                    ) :
-                    query.isError ?
-                        (
-                            <div>Erreur de chargement de la liste des Todos</div>
-                        ) :
-                        query.isSuccess &&
-                        (
-                            <ul>
-                                {todoList.map(t => (
-                                    <>
-                                        <li>Tache : {t.task}</li>
-                                        <li>Personne : {t.user.name}</li>
-                                        <li>Date : {t.realisedAt}</li>
-                                    </>
-                                ))}
-                            </ul>
-                        )
+        <Stack spacing={3.5}>
+            <TodoHeader totalCount={todosQuery.data?.length ?? 0} />
 
-                }
-            </section>
-        </div>
-    )
+            <TodoSearchBar search={search} onSearchChange={setSearch} />
+
+            <TodoCreateForm
+                description={description}
+                isSubmitting={createTodoMutation.isPending}
+                realisedAt={realisedAt}
+                title={title}
+                onDescriptionChange={setDescription}
+                onRealisedAtChange={setRealisedAt}
+                onSubmit={handleSubmit}
+                onTitleChange={setTitle}
+            />
+
+            <TodoList
+                todos={todoList}
+                isLoading={todosQuery.isLoading}
+                isError={todosQuery.isError}
+                isCreateError={createTodoMutation.isError}
+            />
+        </Stack>
+    );
 }
