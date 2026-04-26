@@ -1,4 +1,4 @@
-import { ValidationError } from "../../services/todo.service";
+import { ValidationError } from "./route.errors";
 
 export function parseId(rawId: string) {
   const id = Number(rawId);
