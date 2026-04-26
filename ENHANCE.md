@@ -19,6 +19,7 @@ Le projet est volontairement resté simple et lisible. Si je souhaitais aller pl
 - Ajouter des retours UX plus complets sur les erreurs, succes et chargements (comme des toasters par exemple).
 - Ameliorer l'accessibilite generale de l'interface.
 - Ajouter une vraie gestion des etats vides, des confirmations et des cas limites.
+- Rajouter redux pour une meiolleur gestion des states dans l'application et moins utiliser le passage en props aux composants.
 - Prevoir une meilleure organisation des composants si l'application grossit.
 
 ## Qualite
