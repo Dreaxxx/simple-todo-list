@@ -6,8 +6,9 @@ import { TodoCreateForm } from "../components/todo/todo-create-form";
 import { TodoHeader } from "../components/todo/todo-header";
 import { TodoList } from "../components/todo/todo-list";
 import { TodoSearchBar } from "../components/todo/todo-search-bar";
-import { create, getAll } from "../services/todo.api";
-import { useDebounce } from "../hooks/useDebounced";
+import { create, getAll, update } from "../services/todo.api";
+import type { UpdateTodoInput } from "../types/todo.type";
+import { useDebounce } from "../hooks/useDebounce";
 
 export default function TodoPage() {
     const [title, setTitle] = useState("");
@@ -31,6 +32,14 @@ export default function TodoPage() {
             setTitle("");
             setRealisedAt("");
             setDescription("");
+            await queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
+
+    const updateTodoMutation = useMutation({
+        mutationFn: ({ id, payload }: { id: number; payload: UpdateTodoInput; }) =>
+            update(id, payload),
+        onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["todos"] });
         },
     });
@@ -67,6 +76,10 @@ export default function TodoPage() {
         });
     }, [debouncedSearch, todosQuery.data]);
 
+    async function handleUpdateTodo(id: number, payload: UpdateTodoInput) {
+        await updateTodoMutation.mutateAsync({ id, payload });
+    }
+
     return (
         <Stack spacing={3.5}>
             <TodoHeader totalCount={todosQuery.data?.length ?? 0} />
@@ -89,6 +102,8 @@ export default function TodoPage() {
                 isLoading={todosQuery.isLoading}
                 isError={todosQuery.isError}
                 isCreateError={createTodoMutation.isError}
+                isUpdatePending={updateTodoMutation.isPending}
+                onUpdateTodo={handleUpdateTodo}
             />
         </Stack>
     );

@@ -1,13 +1,17 @@
 import ViewListRoundedIcon from "@mui/icons-material/ViewListRounded";
+import { useState } from "react";
 import { Alert, Grid, LinearProgress, Stack, Typography } from "@mui/material";
-import type { Todo } from "../../types/todo.type";
+import type { Todo, UpdateTodoInput } from "../../types/todo.type";
 import { TodoCard } from "./todo-card";
+import { TodoEditDialog } from "./todo-edit-dialog";
 
 type TodoListProps = {
   todos: Todo[];
   isLoading: boolean;
   isError: boolean;
   isCreateError: boolean;
+  isUpdatePending: boolean;
+  onUpdateTodo: (id: number, payload: UpdateTodoInput) => Promise<void>;
 };
 
 export function TodoList({
@@ -15,7 +19,11 @@ export function TodoList({
   isLoading,
   isError,
   isCreateError,
+  isUpdatePending,
+  onUpdateTodo,
 }: TodoListProps) {
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
+
   if (isLoading) {
     return (
       <Stack spacing={2}>
@@ -55,13 +63,29 @@ export function TodoList({
           Aucune tache ne correspond a la recherche actuelle.
         </Alert>
       ) : (
-        <Grid container spacing={2.5}>
-          {todos.map((todo) => (
-            <Grid key={todo.id} size={{ xs: 12, md: 6 }}>
-              <TodoCard todo={todo} />
-            </Grid>
-          ))}
-        </Grid>
+        <>
+          <Grid container spacing={2.5}>
+            {todos.map((todo) => (
+              <Grid key={todo.id} size={{ xs: 12, md: 6 }}>
+                <TodoCard
+                  todo={todo}
+                  onEdit={() => setSelectedTodo(todo)}
+                />
+              </Grid>
+            ))}
+          </Grid>
+
+          <TodoEditDialog
+            isSubmitting={isUpdatePending}
+            open={selectedTodo !== null}
+            todo={selectedTodo}
+            onClose={() => setSelectedTodo(null)}
+            onSubmit={async (id, payload) => {
+              await onUpdateTodo(id, payload);
+              setSelectedTodo(null);
+            }}
+          />
+        </>
       )}
     </Stack>
   );

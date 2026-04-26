@@ -17,9 +17,10 @@ import { formatDate } from "../../utils/dates/date.format";
 type TodoCardProps = {
   todo: Todo;
   actions?: ReactNode;
+  onEdit?: () => void;
 };
 
-export function TodoCard({ todo, actions }: TodoCardProps) {
+export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
   return (
     <Card sx={{ height: "100%" }}>
       <CardContent>
@@ -53,12 +54,13 @@ export function TodoCard({ todo, actions }: TodoCardProps) {
       <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
         {actions ?? (
           <Button
-            disabled
+            color="primary"
+            onClick={onEdit}
             size="small"
             startIcon={<EditRoundedIcon />}
             variant="text"
           >
-            Edition Soon TM
+            Modifier / Attribuer
           </Button>
         )}
       </CardActions>
