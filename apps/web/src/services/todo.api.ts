@@ -1,20 +1,5 @@
-import type { Todo } from "../types/todo.type";
-
-type TodoApiResponse = {
-    status: string;
-    data: Todo[];
-};
-
-type TodoItemApiResponse = {
-    status: string;
-    data: Todo;
-};
-
-type CreateTodoInput = {
-    title: string;
-    realisedAT?: string | null;
-    userId?: number | null;
-};
+import { TodoApiResponse, TodoItemApiResponse } from "../types/api.type";
+import type { CreateTodoInput, Todo } from "../types/todo.type";
 
 export async function getAll(): Promise<Todo[]> {
     const response = await fetch("http://localhost:3000/api/todo");
