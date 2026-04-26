@@ -1,0 +1,23 @@
+{
+	"name": "starter-fullstack",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"dev": "concurrently -n api,web -c blue,green \"bun run --filter @starter-fullstack/api dev\" \"bun run --filter @starter-fullstack/web dev\"",
+		"db:up": "docker compose up -d",
+		"db:down": "docker compose down",
+		"db:reset": "docker compose down -v && docker compose up -d"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"concurrently": "^9.2.1"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}
