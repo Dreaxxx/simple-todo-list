@@ -1,19 +1,33 @@
-import { Todo } from "../types/todo.type";
+import type { Todo } from "../types/todo.type";
 
+type TodoApiResponse = {
+    status: string;
+    data: Todo[];
+};
+
+type TodoItemApiResponse = {
+    status: string;
+    data: Todo;
+};
+
+type CreateTodoInput = {
+    title: string;
+    realisedAT?: string | null;
+    userId?: number | null;
+};
 
 export async function getAll(): Promise<Todo[]> {
     const response = await fetch("http://localhost:3000/api/todo");
-
-    console.log("Ici", response)
 
     if (!response.ok) {
         throw new Error("Network response was not ok");
     }
 
-    return response.json();
+    const result: TodoApiResponse = await response.json();
+    return result.data;
 }
 
-export async function create(todo: Todo): Promise<Todo> {
+export async function create(todo: CreateTodoInput): Promise<Todo> {
     const response = await fetch("http://localhost:3000/api/todo", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
@@ -24,5 +38,6 @@ export async function create(todo: Todo): Promise<Todo> {
         throw new Error("Network response was not ok");
     }
 
-    return response.json();
+    const result: TodoItemApiResponse = await response.json();
+    return result.data;
 }

@@ -1,67 +1,122 @@
-import { SyntheticEvent, useMemo, useState } from "react";
-import TodoCard from "../components/todo-card";
-import TodoForm from "../components/todo-form.add";
-import { Todo } from "../types/todo.type";
-import { useQuery } from "@tanstack/react-query";
-import { getAll } from "../services/todo.api";
+import type { SyntheticEvent } from "react";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { create, getAll } from "../services/todo.api";
 import { Divider } from "../components/divider";
 
 export default function TodoPage() {
+  const [title, setTitle] = useState("");
+  const [realisedAt, setRealisedAt] = useState("");
+  const [search, setSearch] = useState("");
 
-    const [todo, setTodo] = useState<Todo[]>([])
-    const [todoName, setTodoName] = useState<string>("")
-    const [todoRealisedAt, setTodoRealisedAt] = useState<string>("")
-    const [search, setSearch] = useState<string>("")
+  const queryClient = useQueryClient();
 
-    const query = useQuery({
-        queryKey: ['todos'],
-        queryFn: getAll,
-    })
+  const todosQuery = useQuery({
+    queryKey: ["todos"],
+    queryFn: getAll,
+  });
 
-    async function handleSubmit(e: SyntheticEvent) {
-        e.preventDefault()
+  const createTodoMutation = useMutation({
+    mutationFn: create,
+    onSuccess: async () => {
+      setTitle("");
+      setRealisedAt("");
+      await queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
 
-        console.log("TodoName : ", todoName)
-        console.log("todoRealisedAt : ", todoRealisedAt)
+  async function handleSubmit(e: SyntheticEvent) {
+    e.preventDefault();
+
+    if (title.trim() === "") {
+      return;
     }
 
-    const todoList = useMemo(() => {
-        return query.data!.filter((t) => t.task.includes(search));
-    }, [todo, search]);
+    await createTodoMutation.mutateAsync({
+      title: title.trim(),
+      realisedAT: realisedAt ? new Date(realisedAt).toISOString() : null,
+    });
+  }
 
-    return (
-        <div>
-            <h3>Todo Page</h3>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="task" onChange={(e) => setTodoName(e.target.value)} placeholder="Task Name" />
-                <input type="date" name="realisaedAt" placeholder="Realised At ?" onChange={(e) => setTodoRealisedAt(e.target.value)} />
-                <input type="submit" />
-            </form>
-            <Divider />
-            <section>
-                {query.isLoading ?
-                    (
-                        <div>Chargement de la TodoList ...</div>
-                    ) :
-                    query.isError ?
-                        (
-                            <div>Erreur de chargement de la liste des Todos</div>
-                        ) :
-                        query.isSuccess &&
-                        (
-                            <ul>
-                                {todoList.map(t => (
-                                    <>
-                                        <li>Tache : {t.task}</li>
-                                        <li>Personne : {t.user.name}</li>
-                                        <li>Date : {t.realisedAt}</li>
-                                    </>
-                                ))}
-                            </ul>
-                        )
+  const todoList = useMemo(() => {
+    const todos = todosQuery.data ?? [];
+    const normalizedSearch = search.trim().toLowerCase();
 
-                }
-            </section>
-        </div>
-    )
+    if (normalizedSearch === "") {
+      return todos;
+    }
+
+    return todos.filter((todo) => {
+      const matchesTitle = todo.title.toLowerCase().includes(normalizedSearch);
+      const matchesUser = todo.user?.name
+        ?.toLowerCase()
+        .includes(normalizedSearch);
+
+      return matchesTitle || matchesUser;
+    });
+  }, [search, todosQuery.data]);
+
+  return (
+    <div>
+      <h3>Todo Page</h3>
+
+      <input
+        type="text"
+        value={search}
+        placeholder="Search..."
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="task"
+          value={title}
+          placeholder="Task Name"
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          type="date"
+          name="realisedAt"
+          value={realisedAt}
+          placeholder="Realised At ?"
+          onChange={(e) => setRealisedAt(e.target.value)}
+        />
+        <input
+          type="submit"
+          value={createTodoMutation.isPending ? "Creation..." : "Ajouter"}
+          disabled={createTodoMutation.isPending}
+        />
+      </form>
+
+      <Divider />
+
+      <section>
+        {todosQuery.isLoading && <div>Chargement de la todo list...</div>}
+
+        {todosQuery.isError && (
+          <div>Erreur de chargement de la liste des todos.</div>
+        )}
+
+        {createTodoMutation.isError && (
+          <div>Erreur lors de la creation du todo.</div>
+        )}
+
+        {todosQuery.isSuccess && (
+          <ul>
+            {todoList.map((todo) => (
+              <li key={todo.id}>
+                <span>Tache : {todo.title}</span>
+                <Divider />
+                <span>Personne : {todo.user?.name ?? "Pas encore affecte"}</span>
+                <Divider />
+                <span>Date : {todo.realisedAT ?? "Non renseignee"}</span>
+                <Divider />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
 }
