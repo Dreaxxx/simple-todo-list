@@ -1,8 +1,12 @@
 import type { SyntheticEvent } from "react";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Stack } from "@mui/material";
+import { TodoCreateForm } from "../components/todo/todo-create-form";
+import { TodoHeader } from "../components/todo/todo-header";
+import { TodoList } from "../components/todo/todo-list";
+import { TodoSearchBar } from "../components/todo/todo-search-bar";
 import { create, getAll } from "../services/todo.api";
-import { Divider } from "../components/divider";
 import { useDebounce } from "../hooks/useDebounced";
 
 export default function TodoPage() {
@@ -26,6 +30,7 @@ export default function TodoPage() {
         onSuccess: async () => {
             setTitle("");
             setRealisedAt("");
+            setDescription("");
             await queryClient.invalidateQueries({ queryKey: ["todos"] });
         },
     });
@@ -39,7 +44,7 @@ export default function TodoPage() {
 
         await createTodoMutation.mutateAsync({
             title: title.trim(),
-            realisedAT: realisedAt ? new Date(realisedAt).toISOString() : null,
+            realisedAT: realisedAt ? new Date(realisedAt).toISOString() : new Date().toISOString(),
             description: description.trim() || null,
         });
     }
@@ -63,73 +68,28 @@ export default function TodoPage() {
     }, [debouncedSearch, todosQuery.data]);
 
     return (
-        <div>
-            <h3>Todo Page</h3>
+        <Stack spacing={3.5}>
+            <TodoHeader totalCount={todosQuery.data?.length ?? 0} />
 
-            <input
-                type="text"
-                value={search}
-                placeholder="Search..."
-                onChange={(e) => setSearch(e.target.value)}
+            <TodoSearchBar search={search} onSearchChange={setSearch} />
+
+            <TodoCreateForm
+                description={description}
+                isSubmitting={createTodoMutation.isPending}
+                realisedAt={realisedAt}
+                title={title}
+                onDescriptionChange={setDescription}
+                onRealisedAtChange={setRealisedAt}
+                onSubmit={handleSubmit}
+                onTitleChange={setTitle}
             />
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="task"
-                    value={title}
-                    placeholder="Task Name"
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <input
-                    type="date"
-                    name="realisedAt"
-                    value={realisedAt}
-                    placeholder="Realised At ?"
-                    onChange={(e) => setRealisedAt(e.target.value)}
-                />
-                <textarea
-                    name="description"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                <input
-                    type="submit"
-                    value={createTodoMutation.isPending ? "Creation..." : "Ajouter"}
-                    disabled={createTodoMutation.isPending}
-                />
-            </form>
-
-            <Divider />
-
-            <section>
-                {todosQuery.isLoading && <div>Chargement de la todo list...</div>}
-
-                {todosQuery.isError && (
-                    <div>Erreur de chargement de la liste des todos.</div>
-                )}
-
-                {createTodoMutation.isError && (
-                    <div>Erreur lors de la creation du todo.</div>
-                )}
-
-                {todosQuery.isSuccess && (
-                    <ul>
-                        {todoList.map((todo) => (
-                            <li key={todo.id}>
-                                <span>Tache : {todo.title}</span>
-                                <Divider />
-                                <span>Personne : {todo.user?.name ?? "Pas encore affecte"}</span>
-                                <Divider />
-                                <span>Date : {todo.realisedAT ?? "Non renseignee"}</span>
-                                <Divider />
-                                <span>Description : {todo.description ?? "Pas de description"}</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </section>
-        </div>
+            <TodoList
+                todos={todoList}
+                isLoading={todosQuery.isLoading}
+                isError={todosQuery.isError}
+                isCreateError={createTodoMutation.isError}
+            />
+        </Stack>
     );
 }

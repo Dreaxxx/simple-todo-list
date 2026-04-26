@@ -1,5 +1,5 @@
-import { Todo } from "./todo.type";
-import { User } from "./user.type";
+import type { Todo } from "./todo.type";
+import type { User } from "./user.type";
 
 export type TodoApiResponse = {
     status: string;

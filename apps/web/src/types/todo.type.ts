@@ -2,7 +2,7 @@ export type Todo = {
     id: number;
     title: string;
     description: string | null;
-    realisedAT: string | null;
+    realisedAT: string;
     createdAt: string;
     updatedAt: string;
     user: {
@@ -12,7 +12,12 @@ export type Todo = {
     } | null;
 };
 
-export type CreateTodoInput = Omit<Todo, "id" | "createdAt" | "updatedAt" | "user">;
+export type CreateTodoInput = {
+    title: string;
+    description?: string | null;
+    realisedAT?: string;
+    userId?: number | null;
+};
 
 export type UpdateTodoInput = Partial<CreateTodoInput>;
 

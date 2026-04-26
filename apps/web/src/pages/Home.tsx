@@ -1,34 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { Container, Stack } from "@mui/material";
+import { ApiStatusCard } from "../components/home/api-status-card";
 import TodoPage from "./Todo";
 
 export default function Home() {
-
-    const fetchHealth = async () => {
-        const response = await fetch("http://localhost:3000/api/health");
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
-        }
-        return response.json();
-    };
-
-    const query = useQuery({
-        queryKey: ['health'],
-        queryFn: fetchHealth,
-    })
-
-    
     return (
-        <div>
-            {query.isLoading ? (
-                <p>Loading...</p>
-            ) : query.isError ? (
-                <p>Error: {query.error.message}</p>
-            ) : (
-                <p>Api: {query.data.status}</p>
-            )}
-            <section>
+        <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
+            <Stack spacing={3}>
+                <ApiStatusCard />
                 <TodoPage />
-            </section>
-        </div>
+            </Stack>
+        </Container>
     );
 }
