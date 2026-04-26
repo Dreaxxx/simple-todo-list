@@ -8,6 +8,8 @@ import { useDebounce } from "../hooks/useDebounced";
 export default function TodoPage() {
     const [title, setTitle] = useState("");
     const [realisedAt, setRealisedAt] = useState("");
+    const [description, setDescription] = useState("");
+
     const [search, setSearch] = useState("");
 
     const debouncedSearch = useDebounce(search, 300);
@@ -38,7 +40,7 @@ export default function TodoPage() {
         await createTodoMutation.mutateAsync({
             title: title.trim(),
             realisedAT: realisedAt ? new Date(realisedAt).toISOString() : null,
-            description: "",
+            description: description.trim() || null,
         });
     }
 
@@ -86,6 +88,12 @@ export default function TodoPage() {
                     placeholder="Realised At ?"
                     onChange={(e) => setRealisedAt(e.target.value)}
                 />
+                <textarea
+                    name="description"
+                    placeholder="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
                 <input
                     type="submit"
                     value={createTodoMutation.isPending ? "Creation..." : "Ajouter"}
@@ -116,6 +124,7 @@ export default function TodoPage() {
                                 <Divider />
                                 <span>Date : {todo.realisedAT ?? "Non renseignee"}</span>
                                 <Divider />
+                                <span>Description : {todo.description ?? "Pas de description"}</span>
                             </li>
                         ))}
                     </ul>

@@ -1,15 +1,5 @@
-import { User, TodoUser } from "../types/user.type";
-
-type UserApiResponse = {
-    status: string;
-    data: User[]
-};
-
-type UserItemApiResponse = {
-    status: string;
-    data: TodoUser;
-};
-
+import { UserApiResponse } from "../types/api.type";
+import { User } from "../types/user.type";
 
 export async function getAll(): Promise<User[]> {
     const response = await fetch("http://localhost:3000/api/user");
