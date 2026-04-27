@@ -1,6 +1,6 @@
 import AddTaskRoundedIcon from "@mui/icons-material/AddTaskRounded";
 import { Button, Card, CardContent, Stack, TextField, Typography } from "@mui/material";
-import type { ChangeEvent, SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
 
 type TodoCreateFormProps = {
   title: string;

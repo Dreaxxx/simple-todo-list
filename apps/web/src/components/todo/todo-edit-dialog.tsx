@@ -1,4 +1,4 @@
-import type { ChangeEvent, SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {

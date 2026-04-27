@@ -11,6 +11,7 @@ Le projet est volontairement resté simple et lisible. Si je souhaitais aller pl
 - Ajouter une gestion plus fine des requetes Prisma avec pagination, tri et filtres cote API.
 - Mieux separer les DTO d'entree, les types de sortie API et les types de persistence.
 - Ajouter des logs applicatifs plus propres pour faciliter le debug.
+- Ajout du CRUD pour les users.
 
 ## Front-end
 
@@ -28,10 +29,11 @@ Le projet est volontairement resté simple et lisible. Si je souhaitais aller pl
 - Ajouter des tests d'integration sur les routes API.
 - Ajouter des tests front sur les composants principaux et les interactions utilisateur.
 - Ajouter des tests end-to-end pour les scenarios critiques(Playwright dans mon cas).
-- Renforcer les conventions de code avec lint, formatage et eventuellement hooks Git (J'utilisa beaucoup Husky, ESLint, Prettier de base).
+- Renforcer les conventions de code avec lint, formatage et eventuellement hooks Git (J'utilise beaucoup Husky, ESLint, Prettier de base).
 
 ## Fonctionnel
 
-- Ajouter une vraie edition complete des todos avec retours de succes ou d'echec plus detailles.
+- Ajouter une vraie edition complè
+te des todos avec retours de succes ou d'echec plus detailles.
 - Ajouter des filtres supplementaires comme "attribue / non attribue" ou "a faire / en retard".
 - Ajouter une gestion plus claire des dates metier selon le besoin reel: date cible, date de fin, date de realisation de la tache, etc.

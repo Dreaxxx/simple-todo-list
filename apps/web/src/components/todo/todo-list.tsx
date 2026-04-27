@@ -14,7 +14,9 @@ type TodoListProps = {
   createError: Error | null;
   isUpdatePending: boolean;
   updateError: Error | null;
+  deleteError: Error | null;
   onUpdateTodo: (id: number, payload: UpdateTodoInput) => Promise<void>;
+  onDeleteTodo: (id: number) => Promise<void>;
 };
 
 export function TodoList({
@@ -25,7 +27,9 @@ export function TodoList({
   createError,
   isUpdatePending,
   updateError,
+  deleteError,
   onUpdateTodo,
+  onDeleteTodo,
 }: TodoListProps) {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
 
@@ -71,6 +75,12 @@ export function TodoList({
         </Alert>
       )}
 
+      {Boolean(deleteError) && (
+        <Alert severity="error">
+          {getErrorMessage(deleteError, "La tache n'a pas pu etre supprimee.")}
+        </Alert>
+      )}
+
       {todos.length === 0 ? (
         <Alert severity="info">
           Aucune tache ne correspond a ta recherche.
@@ -81,6 +91,9 @@ export function TodoList({
             {todos.map((todo) => (
               <Grid key={todo.id} size={{ xs: 12, md: 6 }}>
                 <TodoCard
+                  onDelete={async () => {
+                    await onDeleteTodo(todo.id);
+                  }}
                   todo={todo}
                   onEdit={() => setSelectedTodo(todo)}
                 />

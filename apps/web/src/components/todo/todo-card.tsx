@@ -1,4 +1,5 @@
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import {
@@ -7,20 +8,24 @@ import {
   CardActions,
   CardContent,
   Chip,
+  IconButton,
   Stack,
   Typography,
 } from "@mui/material";
-import type { ReactNode } from "react";
 import type { Todo } from "../../types/todo.type";
 import { formatDate } from "../../utils/dates/date.format";
 
 type TodoCardProps = {
   todo: Todo;
-  actions?: ReactNode;
   onEdit?: () => void;
+  onDelete?: () => void;
 };
 
-export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
+export function TodoCard({
+  todo,
+  onEdit,
+  onDelete,
+}: TodoCardProps) {
   const isOverdue =
     todo.realisedAT !== null && new Date(todo.realisedAT) <= new Date();
 
@@ -55,7 +60,7 @@ export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
       </CardContent>
 
       <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-        {actions ?? (
+        <Stack direction="row" spacing={1}>
           <Button
             color="primary"
             onClick={onEdit}
@@ -65,7 +70,16 @@ export function TodoCard({ todo, actions, onEdit }: TodoCardProps) {
           >
             Modifier / Attribuer
           </Button>
-        )}
+
+          <IconButton
+            aria-label="Supprimer la tache"
+            color="error"
+            onClick={onDelete}
+            size="small"
+          >
+            <DeleteOutlineRoundedIcon />
+          </IconButton>
+        </Stack>
       </CardActions>
     </Card>
   );

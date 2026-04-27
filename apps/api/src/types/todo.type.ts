@@ -5,12 +5,7 @@ export type CreateTodoInput = {
     userId?: number | null;
 };
 
-export type UpdateTodoInput = {
-    title?: string;
-    description?: string | null;
-    realisedAT?: Date;
-    userId?: number | null;
-};
+export type UpdateTodoInput = Partial<CreateTodoInput>
 
 export type TodoPayload = {
     title: string;

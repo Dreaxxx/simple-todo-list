@@ -1,3 +1,5 @@
+import { TodoUser } from "./user.type";
+
 export type Todo = {
     id: number;
     title: string;
@@ -5,11 +7,7 @@ export type Todo = {
     realisedAT: string | null;
     createdAt: string;
     updatedAt: string;
-    user: {
-        id: number;
-        name: string | null;
-        email: string;
-    } | null;
+    user: TodoUser
 };
 
 export type CreateTodoInput = {

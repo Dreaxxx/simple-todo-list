@@ -12,7 +12,7 @@ export function TodoSearchBar({
   onSearchChange,
 }: TodoSearchBarProps) {
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    onSearchChange((event.target as HTMLInputElement).value);
+    onSearchChange(event.target.value);
   }
 
   return (

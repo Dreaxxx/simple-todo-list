@@ -6,11 +6,16 @@ import { TodoCreateForm } from "../components/todo/todo-create-form";
 import { TodoHeader } from "../components/todo/todo-header";
 import { TodoList } from "../components/todo/todo-list";
 import { TodoSearchBar } from "../components/todo/todo-search-bar";
-import { create, getAll, update } from "../services/todo.api";
-import type { UpdateTodoInput } from "../types/todo.type";
+import { create, getAll, remove, update } from "../services/todo.api";
+import type { CreateTodoInput, Todo, UpdateTodoInput } from "../types/todo.type";
 import { useDebounce } from "../hooks/useDebounce";
 import { filterTodos } from "../utils/todos/todo.filter";
 import { buildCreateTodoInput } from "../utils/todos/todo.payload";
+
+type UpdateTodoVariables = {
+    id: number;
+    payload: UpdateTodoInput;
+};
 
 export default function TodoPage() {
     const [title, setTitle] = useState("");
@@ -23,17 +28,15 @@ export default function TodoPage() {
 
     const queryClient = useQueryClient();
 
-    const todosQuery = useQuery<Awaited<ReturnType<typeof getAll>>, Error>({
+    const todosQuery = useQuery<Todo[], Error>({
         queryKey: ["todos"],
         queryFn: getAll,
+        refetchOnWindowFocus: false,
     });
 
-    const createTodoMutation = useMutation<
-        Awaited<ReturnType<typeof create>>,
-        Error,
-        Parameters<typeof create>[0]
-    >({
+    const createTodoMutation = useMutation<Todo, Error, CreateTodoInput>({
         mutationFn: create,
+
         onSuccess: async () => {
             setTitle("");
             setRealisedAt("");
@@ -42,13 +45,16 @@ export default function TodoPage() {
         },
     });
 
-    const updateTodoMutation = useMutation<
-        Awaited<ReturnType<typeof update>>,
-        Error,
-        { id: number; payload: UpdateTodoInput }
-    >({
-        mutationFn: ({ id, payload }: { id: number; payload: UpdateTodoInput; }) =>
+    const updateTodoMutation = useMutation<Todo, Error, UpdateTodoVariables>({
+        mutationFn: ({ id, payload }) =>
             update(id, payload),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: ["todos"] });
+        },
+    });
+
+    const deleteTodoMutation = useMutation<void, Error, number>({
+        mutationFn: remove,
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ["todos"] });
         },
@@ -78,6 +84,10 @@ export default function TodoPage() {
         await updateTodoMutation.mutateAsync({ id, payload });
     }
 
+    async function handleDeleteTodo(id: number) {
+        await deleteTodoMutation.mutateAsync(id);
+    }
+
     return (
         <Stack spacing={3.5}>
             <TodoHeader totalCount={todosQuery.data?.length ?? 0} />
@@ -103,7 +113,9 @@ export default function TodoPage() {
                 createError={createTodoMutation.error}
                 isUpdatePending={updateTodoMutation.isPending}
                 updateError={updateTodoMutation.error}
+                deleteError={deleteTodoMutation.error}
                 onUpdateTodo={handleUpdateTodo}
+                onDeleteTodo={handleDeleteTodo}
             />
         </Stack>
     );

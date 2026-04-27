@@ -20,7 +20,7 @@ export function TodoHeader({ totalCount }: TodoHeaderProps) {
           Todo List
         </Typography>
         <Typography color="text.secondary" variant="body1">
-          Une interface claire pour creer, filtrer et attribuer des taches a des utilisateurs.
+          Une interface claire pour creer, filtrer et attribuer des taches et les assigner a des utilisateurs.
         </Typography>
       </div>
 
